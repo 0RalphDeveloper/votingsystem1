@@ -12,6 +12,7 @@
       <template v-if="data">
         <p>Scanned ID: {{ data.value }}</p>
         <p>First Name: {{ data.firstname }}</p>
+        <p>Middle Name: {{ data.middlename || 'N/A'  }}</p>
         <p>Last Name: {{ data.lastname }}</p>
       </template>
       <template v-else>
