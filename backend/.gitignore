@@ -1,0 +1,23 @@
+# Node modules folder (huge, regenerated via npm install)
+node_modules/
+
+# Environment variables (contains secrets like API keys, tokens)
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build folders (if you have a build step)
+dist/
+build/
+
+# IDE settings (optional)
+.vscode/
+.idea/
+
+# MacOS system files (optional)
+.DS_Store
