@@ -74,17 +74,15 @@ const stopScanner = async () => {
 const handleScan = async (decodedText) => {
   try {
     const res = await api.post('/scan', { scannedValue: decodedText })   
-    message.value = 'Scan successful, proceeding to dashboard...'
-    messageType.value = 'success'
+    // message.value = 'Scan successful, proceeding to dashboard...'
+    // messageType.value = 'success'
+    await stopScanner()
     isScannerActive.value = false
-
-  setTimeout(async () => {
-      await stopScanner()
-      router.push('/dashboard')
-    }, 3000) 
+    router.push('/dashboard')
 
   } catch (err) {
     message.value = 'Scan failed or Student is not in the list.'
+    console.log(decodedText)
     messageType.value = 'error'
     await stopScanner()
     isScannerActive.value = false

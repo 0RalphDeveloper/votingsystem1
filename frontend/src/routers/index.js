@@ -4,6 +4,7 @@ import Login from '@/views/login.vue'
 import Dashboard from '@/views/dashboard.vue'
 import Admindashboard from '@/views/admin/admindashboard.vue'
 import Qrscaner from '@/views/qrscaner.vue'
+import Candidates from '@/views/admin/candidates.vue'
 
 const routes = [
   { path: '/', redirect: '/scan' },
@@ -12,10 +13,11 @@ const routes = [
   { path: '/dashboard', component: Dashboard },
   { path: '/admindashboard', component: Admindashboard },
   { path: '/scan', component: Qrscaner },
-
-
+  { path: '/candidates', component: Candidates },
 
 ]
+
+
 
 const router = createRouter({
   history: createWebHistory(),

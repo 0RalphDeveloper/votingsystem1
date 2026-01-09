@@ -38,7 +38,6 @@ const fetchDashboard = async () => {
     const res = await api.get('/dashboard', { withCredentials: true })
     data.value = res.data
   } catch (err) {
-    console.error('Failed to fetch dashboard data:', err)
     if (err.response?.status === 401) {
       router.push('/scan')
     }
@@ -47,20 +46,21 @@ const fetchDashboard = async () => {
     loading.value = false
   }
 }
+onMounted(() => {
+  fetchDashboard()
+})
 
 // Logout user
 const handleLogout = async () => {
   try {
-    await api.post('/logout', {}, { withCredentials: true })
+    await api.post('/logoutuser', {}, { withCredentials: true })
     router.push('/scan')
   } catch (err) {
     console.error('Logout failed:', err)
   }
 }
 
-onMounted(() => {
-  fetchDashboard()
-})
+
 </script>
 
 <style scoped>

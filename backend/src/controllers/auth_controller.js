@@ -83,12 +83,21 @@ export const login = async (req, res) => {
     // Update token in Directus
     await directus.patch(`/useraccount/${user.id}`, { token: newToken })
 
+       // Set token as HTTP-only cookie
+    res.cookie('userToken', newToken, {
+      httpOnly: true,       // Cannot be accessed by JS
+      secure: false,        // true if using HTTPS
+      sameSite: 'lax',      // prevents CSRF in most cases
+      maxAge: 24 * 60 * 60 * 1000 // 1 day
+    })
+
     // Return token + basic user info
     res.status(200).json({
       message: 'Login successful',
-      token: newToken,
       role: user.role,
     })
+
+
   } catch (err) {
     console.error(err.response?.data || err.message)
     res.status(500).json({ message: 'Server error' })
@@ -119,53 +128,50 @@ export const login = async (req, res) => {
 //   }
 // };
 
-// export const dashboardadmin = async (req, res) => {
-//   try {
-//     const userId = req.user.id; // from middleware
-
-//     const response = await directusLogin.get(`?filter[id][_eq]=${userId}`);
-//     const user = response.data.data?.[0];
-
-//     if (!user) {
-//       return res.status(404).json({ message: 'User not found' });
-//     }
-
-//     res.status(200).json({
-//       id: user.id,
-//       email: user.email,
-//       role: user.role,
-//       complete: user.complete// optional field
-//     });
-
-//   } catch (err) {
-//     console.error(err.response?.data || err.message);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// };
-
-export const logout = async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1]
-
-  if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' })
-  }
-
+export const dashboardadmin = async (req, res) => {
   try {
-      const userResponse = await directus.get('/useraccount', {
-      params: {
-      filter: { token: { _eq: token } } 
-      }
-    })
+    const { id, email, role } = req.user
 
-    const user = userResponse.data.data[0]
-
-    if (!user) {
-      return res.status(204).send()
+    // Extra safety (optional if you use requireAdmin middleware)
+    if (role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access only' })
     }
 
-    // Invalidate token
-    await directus.patch(`/useraccount/${user.id}`, { token: null })
+    return res.status(200).json({
+      id,
+      email,
+      role,
+    })
+  } catch (err) {
+    console.error(err.message)
+    return res.status(500).json({ message: 'Server error' })
+  }
+}
 
+
+export const logoutadmin = async (req, res) => {
+  const token = req.cookies.userToken
+
+  try {
+    if (token) {
+      const userResponse = await directus.get('/useraccount', {
+        params: { 'filter[token][_eq]': token }
+      })
+
+      const admin = userResponse.data.data[0]
+
+      if (admin) {
+        await directus.patch(`/useraccount/${admin.id}`, { token: null })
+      }
+    }
+
+    // ✅ Clear HTTP-only cookie (MUST match original options)
+    res.clearCookie('userToken', {
+      httpOnly: true,
+      secure: false,   // same as when set
+      sameSite: 'lax', // same as when set
+      path: '/',       // default, but be explicit
+    })
 
     return res.status(200).json({ message: 'Logged out successfully' })
   } catch (err) {

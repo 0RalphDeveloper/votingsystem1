@@ -1,6 +1,6 @@
 import express from 'express'
-import { register, login} from '../controllers/auth_controller.js'
-import { scanQRCode, getDashboard, logout} from '../controllers/auth_scanner.js'
+import { register, login, dashboardadmin,logoutadmin} from '../controllers/auth_controller.js'
+import { scanQRCode, getDashboard, logoutuser} from '../controllers/auth_scanner.js'
 
 import { requireAuth } from '../middlewares/auth_middleware.js'
 import { requireAdmin } from '../middlewares/auth_admin_middleware.js'
@@ -8,11 +8,13 @@ import { requireAdmin } from '../middlewares/auth_admin_middleware.js'
 
 const router = express.Router()
 router.post('/scan', scanQRCode)
-router.post('/logout', logout)
+router.post('/logoutuser', logoutuser)
+router.post('/logoutadmin', logoutadmin)
+
 router.get('/dashboard', getDashboard)
 router.post('/register', register)
 router.post('/login', login)
-// router.get('/dashboardadmin', requireAuth, requireAdmin ,dashboarduser)
+router.get('/dashboardadmin', requireAuth, requireAdmin ,dashboardadmin)
 // router.get('/allCustomerOrders', requireAuth, requireAdmin, allCustomerOrders)
 // router.patch('/markOrderDone/:orderId', requireAuth, markOrderDone, requireAdmin)
 

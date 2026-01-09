@@ -99,26 +99,29 @@ export const getDashboard = async (req, res) => {
   }
 }
 
-export const logout = async (req, res) => {
-    const token = req.cookies.userToken // read HTTP-only cookie
-
-  if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' })
-  }
+export const logoutuser = async (req, res) => {
+  const token = req.cookies.userToken
 
   try {
-    const userResponse = await directus.get('/scannedId', {
-      params: { 'filter[token][_eq]': token }
-    })
+    if (token) {
+      const userResponse = await directus.get('/scannedId', {
+        params: { 'filter[token][_eq]': token }
+      })
 
-    const student = userResponse.data.data[0]
+      const student = userResponse.data.data[0]
 
-    if (!student) {
-      return res.status(204).send()
+      if (student) {
+        await directus.patch(`/scannedId/${student.id}`, { token: null })
+      }
     }
 
-    // Invalidate token
-    await directus.patch(`/scannedId/${student.id}`, { token: null })
+    // ✅ Clear HTTP-only cookie (MUST match original options)
+    res.clearCookie('userToken', {
+      httpOnly: true,
+      secure: false,   // same as when set
+      sameSite: 'lax', // same as when set
+      path: '/',       // default, but be explicit
+    })
 
     return res.status(200).json({ message: 'Logged out successfully' })
   } catch (err) {
@@ -126,3 +129,4 @@ export const logout = async (req, res) => {
     return res.status(500).json({ message: 'Server error' })
   }
 }
+
