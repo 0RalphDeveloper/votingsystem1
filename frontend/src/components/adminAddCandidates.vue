@@ -29,7 +29,9 @@
               <input v-model="candidate.lastname" type="text"  />
             </div>
 
-            <button type="submit">Save Candidates</button>
+          <button type="submit" :disabled="!hasAtLeastOneCandidate">
+            Save Candidates
+          </button>
           </form>
             <button @click.prevent="isOpen = false">Close</button>
         </div>
@@ -38,7 +40,7 @@
 
 <script setup>
 import api from '../services/api.js'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
@@ -66,30 +68,48 @@ const candidates = ref(
 )
 
 
-const submitCandidates = async () =>{
-  try{
+const submitCandidates = async () => {
+
     message.value = ''
-    const candidate = candidates.value.map(c => ({
-      ...c,
-      partylist: partylist.value
-    }))
-    const response = await api.post('/candidatesEntry', candidate)
+
+    const filteredCandidates = candidates.value
+      .filter(c =>
+        c.firstname.trim() !== '' ||
+        c.lastname.trim() !== ''
+      )
+      .map(c => ({
+        position: c.position,
+        firstname: c.firstname.trim(),
+        middlename: c.middlename.trim(),
+        lastname: c.lastname.trim(),
+        partylist: partylist.value
+      }))
+  try {
+    const response = await api.post('/candidatesEntry', filteredCandidates)
 
     message.value = response.data.message
     isOpen.value = false
-    
-    candidates.value = positions.map(position => ({
-    position,
-    firstname: '',
-    middlename: '',
-    lastname: ''
 
+    // Reset form input fields
+    candidates.value = positions.map(position => ({
+      position,
+      firstname: '',
+      middlename: '',
+      lastname: '',
     }))
     partylist.value = ''
-  }catch(err){
-    message.value = err.response?.data?.message || 'Please try again.'  
+
+  } catch (err) {
+    message.value = err.response?.data?.message || 'Please try again.'
+    isOpen.value = false
+
   }
 }
+
+const hasAtLeastOneCandidate = computed(() =>
+  candidates.value.some(c => c.firstname || c.lastname)
+)
+
 
 
 </script>

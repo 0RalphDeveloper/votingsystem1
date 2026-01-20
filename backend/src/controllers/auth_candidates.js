@@ -21,7 +21,21 @@ export const candidatesEntry = async (req,res) => {
         const token = req.cookies.userToken // read HTTP-only cookie
         if (!token) return res.status(401).json({ message: 'Unauthorized' })
 
-    // Optional: filter empty entries
+        const response = await directus.get('/candidates?fields=firstname,lastname')
+        const existingData = response.data.data;
+
+        // Check for duplicates entry
+        const duplicate = candidate.some(newCandidate =>
+        existingData.some(e =>
+            e.firstname === newCandidate.firstname && e.lastname === newCandidate.lastname
+        )
+        );
+
+        if (duplicate) {
+        return res.status(400).json({ message: 'Double Entry is prohibited.' });
+        }
+        
+    // Optional: filter empty entries   
         // const validPayload = candidate.filter(
         // c => c.position && c.firstname && c.lastname
         // )
@@ -32,6 +46,7 @@ export const candidatesEntry = async (req,res) => {
 
         const candidatePayload = await directus.post('/candidates', candidate)
 
+
         return res.status(201).json({
         message: 'Candidates saved successfully',
         })
@@ -39,7 +54,20 @@ export const candidatesEntry = async (req,res) => {
         console.error(err.response?.data || err)
         return res.status(500).json({ message: 'Failed to save candidates' })
     }
+}
 
-
+export const getCandidates  = async (req, res) => {
+    
+    try{
+        const response = await directus.get('/candidates?fields=*')
+        res.status(200).json({
+            message: 'Candidates Data', 
+            data: response.data.data
+        })    
+    }
+    catch(err){
+        console.error(err.response?.data || err)
+        return res.status(500).json({ message: 'Failed to fetch candidates' })   
+    }
 }
 

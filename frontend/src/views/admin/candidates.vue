@@ -7,6 +7,8 @@
       Loading...
     </div>
     <AdminAddCandidates />
+    <AdminfetchCandidates />
+
   </div>
     </main>
   </div>
@@ -18,6 +20,7 @@ import Adminsidebar from '@/components/adminsidebar.vue'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
 import AdminAddCandidates from '@/components/adminAddCandidates.vue';
+import AdminfetchCandidates from '@/components/adminfetchCandidates.vue';
 
 const loading = ref(true)
 const data = ref(null)
@@ -37,9 +40,12 @@ const fetchDashboard = async () => {
     loading.value = false
   }
 }
+
+
 onMounted(() => {
   fetchDashboard()
 })
+
 
 </script>
 
