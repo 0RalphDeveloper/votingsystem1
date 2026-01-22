@@ -1,25 +1,12 @@
 <template>
-  <div class="dashboard-layout">
+    <div class="dashboard-layout">
     <Usersidebar />
     <main class="main-content">
   <div>
-    <h2>Dashboard</h2>
-
     <div v-if="loading">
       Loading...
     </div>
-
-    <div v-else>
-      <template v-if="data">
-        <p>Scanned ID: {{ data.value }}</p>
-        <p>First Name: {{ data.firstname }}</p>
-        <p>Middle Name: {{ data.middlename || 'N/A'  }}</p>
-        <p>Last Name: {{ data.lastname }}</p>
-      </template>
-      <template v-else>
-        <p>No data available</p>
-      </template>
-    </div>
+    <UserfetchCandidates />
 
   </div>
     </main>
@@ -27,13 +14,14 @@
 </template>
 
 <script setup>
+import api from '../services/api.js'
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import api from '../services/api'
-import Usersidebar from '@/components/usersidebar.vue'
+import { useRouter } from 'vue-router';
+import UserfetchCandidates from '@/components/userfetchCandidates.vue';
+import Usersidebar from '@/components/usersidebar.vue';
 
-const data = ref(null)
 const loading = ref(true)
+const data = ref(null)
 const router = useRouter()
 
 // Fetch dashboard data
@@ -55,12 +43,10 @@ onMounted(() => {
   fetchDashboard()
 })
 
+
 </script>
 
 <style scoped>
-h2 {
-  margin-bottom: 1rem;
-}
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
@@ -70,9 +56,5 @@ h2 {
   padding: 2rem;
   background-color: #f7f7f7;
   overflow-y: auto;
-}
-
-p {
-  margin: 0.5rem 0;
 }
 </style>

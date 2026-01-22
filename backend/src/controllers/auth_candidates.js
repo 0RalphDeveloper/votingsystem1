@@ -71,3 +71,67 @@ export const getCandidates  = async (req, res) => {
     }
 }
 
+export const submitVote = async (req, res) => {
+  try {
+    const token = req.cookies.userToken
+    if (!token) {
+      return res.status(401).json({ message: 'Unauthorized' })
+    }
+
+    const { votes } = req.body
+
+    if (!votes || Object.keys(votes).length === 0) {
+      return res.status(400).json({ message: 'No votes submitted' })
+    }
+
+    const studentResponse = await directus.get('/scannedId', {
+    params: {
+        filter: {
+        token: { _eq: token }
+        }
+    }
+    })
+
+    if (!studentResponse.data.data.length) {
+    return res.status(404).json({ message: 'Student not found' })
+    }
+
+    const studentId = studentResponse.data.data[0].id
+
+    const existingVote = await directus.get('/studentvotes', {
+      params: {
+        filter: {
+          studentId: { _eq: studentId }
+        }
+      }
+    })
+
+    if (existingVote.data.data.length > 0) {
+      return res.status(400).json({
+        message: 'You have already voted'
+      })
+    }
+
+    // Convert votes object into array payload
+    const votePayload = Object.entries(votes).map(
+      ([position, candidateId]) => ({
+        studentId: studentId,
+        candidateId
+      })
+    )
+
+    await directus.post('/studentvotes', votePayload)
+
+    return res.status(201).json({
+      message: 'Vote submitted successfully'
+    })
+
+  } catch (err) {
+    console.error(err.response?.data || err)
+    return res.status(500).json({
+      message: 'Failed to submit vote'
+    })
+  }
+}
+
+

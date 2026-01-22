@@ -1,5 +1,5 @@
 <template>
-    <div class="dashboard-layout">
+  <div class="dashboard-layout">
     <Adminsidebar />
     <main class="main-content">
   <div>

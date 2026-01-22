@@ -5,6 +5,8 @@ import Dashboard from '@/views/dashboard.vue'
 import Admindashboard from '@/views/admin/admindashboard.vue'
 import Qrscaner from '@/views/qrscaner.vue'
 import Candidates from '@/views/admin/candidates.vue'
+import Usercandidates from '@/views/usercandidates.vue'
+import CandidatesRanking from '@/views/candidatesRanking.vue'
 
 const routes = [
   { path: '/', redirect: '/scan' },
@@ -14,6 +16,8 @@ const routes = [
   { path: '/admindashboard', component: Admindashboard },
   { path: '/scan', component: Qrscaner },
   { path: '/candidates', component: Candidates },
+  { path: '/usercandidates', component: Usercandidates },
+  { path: '/candidatesranking', component: CandidatesRanking },
 
 ]
 

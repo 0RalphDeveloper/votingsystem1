@@ -7,18 +7,17 @@
     <h2 class="position-title">{{ position }}</h2>
 
     <div class="cards-wrapper">
+      
       <div
-        v-for="candidate in candidatesByPosition(position)"
-        :key="candidate.id"
+        v-for="candidate in candidatesByPosition(position)" :key="candidate.id"
         class="candidate-card"
       >
+      <p class="partylist">{{ candidate.partylist }}</p>
         <p class="name">
           {{ candidate.firstname }}
           {{ candidate.middlename || '' }}
           {{ candidate.lastname }}
         </p>
-        <p class="partylist">{{ candidate.partylist }}</p>
-
       </div>
 
       <p
@@ -65,7 +64,7 @@ onMounted(fetchCandidates)
 
 <style scoped>
 .partylist {
-  font-size: 0.9rem;
+  font-size: 0.7rem;
   color: #555;
   font-style: italic;
 }
