@@ -32,7 +32,7 @@
   <button
     class="vote-btn"
     @click="submitVote"
-    :disabled="loading"
+    :disabled="loadingButton"
   >
     <span v-if="loadingButton">Submitting...</span>
     <span v-else>Vote</span>

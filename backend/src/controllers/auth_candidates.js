@@ -134,4 +134,55 @@ export const submitVote = async (req, res) => {
   }
 }
 
+export const getVoteCounts = async (req, res) => {
+  try {
+    //kukunin muna yung vote counts ng kada ID ng bawat cadidates
+    const votesResponse = await directus.get('/studentvotes', {
+      params: {
+        aggregate: { count: '*' },
+        groupBy: 'candidateId',
+        fields: ['candidateId']
+      }
+    });
+    //dito ipapasa yung result ng votecounts galing sa reponse sa studentvotes
+    const voteCounts = votesResponse.data.data;
+
+    //kukunin and detail information para sa lahat ng candidates
+    //sa candidateIds kukunin and bawat Id na ng galing sa voteCounts
+    const candidateIds = voteCounts.map(v => v.candidateId);
+    const candidatesResponse = await directus.get('/candidates', {
+      params: {
+        //Kukunin lahat ng ID na laman na galig sa candidateIds tapos kukunin ang firstname middlename, lastname
+        filter: { id: { _in: candidateIds } },
+        fields: ['id', 'firstname','middlename','lastname', 'position']
+      }
+    });
+
+    const candidates = candidatesResponse.data.data;
+
+    //pagsamahin kung ilan ang vote counts ng bawat candidates name
+    const results = voteCounts.map(v => {
+      const candidate = candidates.find(c => c.id === v.candidateId);
+      return {
+        firstname: candidate?.firstname ?? '',
+        middlename: candidate?.middlename ?? '',
+        lastname: candidate?.lastname ?? '',
+        position: candidate?.position ?? '',
+        totalVotes: v.count
+      };
+    });
+
+    //isesend na yung response galing sa result variable
+    return res.status(200).json(results);
+  } catch (err) {
+    console.error(err.response?.data || err);
+    return res.status(500).json({
+      message: 'Failed to fetch vote counts'
+    });
+  }
+};
+
+
+
+
 
