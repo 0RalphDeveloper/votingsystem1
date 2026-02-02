@@ -74,9 +74,7 @@ const submitCandidates = async () => {
 
     const filteredCandidates = candidates.value
       .filter(c =>
-        c.firstname.trim() !== '' ||
-        c.lastname.trim() !== ''
-      )
+        c.firstname.trim() !== '' || c.lastname.trim() !== '')
       .map(c => ({
         position: c.position,
         firstname: c.firstname.trim(),
@@ -90,6 +88,18 @@ const submitCandidates = async () => {
     message.value = response.data.message
     isOpen.value = false
 
+    
+    filteredCandidates.forEach(newC => {
+      const existingIndex = candidates.value.findIndex(
+        c => c.position === newC.position && c.firstname === '' && c.lastname === ''
+      );
+      if (existingIndex !== -1) {
+        candidates.value[existingIndex] = { ...newC };
+      } else {
+        candidates.value.push({ ...newC });
+      }
+    });
+
     // Reset form input fields
     candidates.value = positions.map(position => ({
       position,
@@ -101,6 +111,9 @@ const submitCandidates = async () => {
 
   } catch (err) {
     message.value = err.response?.data?.message || 'Please try again.'
+    setTimeout(() => {
+      message.value = ''
+    }, 5000)
     isOpen.value = false
 
   }
@@ -124,8 +137,11 @@ const hasAtLeastOneCandidate = computed(() =>
   padding: 2rem;
   background-color: #f7f7f7;
   overflow-y: auto;
+  max-height: 90vh;
+
 }
 
+/* Modal overlay */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -134,19 +150,98 @@ const hasAtLeastOneCandidate = computed(() =>
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* aligns modal slightly from top */
   justify-content: center;
+  padding-top: 1rem; /* space from top */
+  overflow-y: auto;
+  z-index: 1000;
 }
 
+/* Modal content */
 .modal-content {
-  background: white;
+  background: #fff;
   padding: 2rem;
-  border-radius: 8px;
-  width: 90%;
-  height: 85%;
-  max-width: 1200px;
+  border-radius: 10px;
+  width: 80%;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
+
+/* Form inside modal */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Grouping inputs */
+.position-section {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  background-color: #fafafa;
+}
+
+.position-section h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Inputs */
+label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;
+}
+
+/* Buttons */
+button {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button[type="submit"] {
+  background-color: #28a745;
+  color: white;
+  font-weight: 600;
+}
+
+button[type="submit"]:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.modal-content > button {
+  background-color: #dc3545;
+  color: white;
+  margin-top: 1rem;
+}
+
+.modal-content > button:hover {
+  background-color: #c82333;
+}
+
+/* Success message */
+.success-message {
+  color: green;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
 
 </style>

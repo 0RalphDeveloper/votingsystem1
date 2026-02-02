@@ -35,6 +35,7 @@ export const candidatesEntry = async (req,res) => {
         return res.status(400).json({ message: 'Double Entry is prohibited.' });
         }
         
+        
     // Optional: filter empty entries   
         // const validPayload = candidate.filter(
         // c => c.position && c.firstname && c.lastname
@@ -44,13 +45,35 @@ export const candidatesEntry = async (req,res) => {
         // return res.status(400).json({ message: 'No valid candidates provided' })
         // }
 
-        const candidatePayload = await directus.post('/candidates', candidate)
+      // Validate candidates
+        for (const c of candidate) {
+          // Only check if user typed something
+          if (c.firstname?.trim() || c.lastname?.trim()) {
+            if (!c.firstname?.trim() || !c.lastname?.trim()) {
+              return res.status(400).json({
+                message: `Candidate for position "${c.position}" must have both first and last name.`
+              });
+            }
+          }
+        }
 
+        // Only keep candidates that have any input (optional, but safe)
+        const candidatesToSave = candidate.filter(
+          c => c.firstname?.trim() || c.lastname?.trim()
+        );
+
+        if (!candidatesToSave.length) {
+          return res.status(400).json({ message: 'No candidates provided.' });
+        }
+
+            // Save to Directus
+        await directus.post('/candidates', candidatesToSave);
 
         return res.status(201).json({
         message: 'Candidates saved successfully',
         })
-    }catch(err){
+    }
+    catch(err){
         console.error(err.response?.data || err)
         return res.status(500).json({ message: 'Failed to save candidates' })
     }
@@ -180,8 +203,31 @@ export const getVoteCounts = async (req, res) => {
       message: 'Failed to fetch vote counts'
     });
   }
-};
+}
 
+export const updateCandidate = async (req, res) => {
+  const candidateId = req.params.id
+  const { firstname, middlename, lastname, partylist } = req.body  
+  if (!firstname || !lastname || !partylist) {
+    return res.status(400).json({ message: 'Firstname, lastname, and partylist are required.' })
+  }
+
+  try {
+    // Update candidate in 'candidates' collection
+    const response = await directus.patch(`candidates/${candidateId}`, {
+      firstname,
+      middlename,
+      lastname,
+      partylist
+    })
+    res.status(200).json({
+      message: 'Candidate updated successfully',
+    })
+  } catch (err) {
+    console.error(err.response?.data || err)
+    res.status(500).json({ message: 'Failed to update candidate' })
+    }
+}
 
 
 

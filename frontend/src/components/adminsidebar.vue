@@ -19,6 +19,13 @@
         </router-link>
       </li>
 
+      <li>
+        <router-link to="/admincandidatesranking" class="link" active-class="active">
+          <i class="fas fa-person"></i>
+          <span>Candidates Ranking</span>
+        </router-link>
+      </li>
+
 
       <li>
         <button class="link logout-btn" @click="handleLogout">
