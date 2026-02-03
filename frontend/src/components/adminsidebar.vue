@@ -26,6 +26,13 @@
         </router-link>
       </li>
 
+        <li>
+        <router-link to="/admintrackvotes" class="link" active-class="active">
+          <i class="fas fa-person"></i>
+          <span>Monitor Votes</span>
+        </router-link>
+      </li>
+
 
       <li>
         <button class="link logout-btn" @click="handleLogout">

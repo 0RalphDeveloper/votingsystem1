@@ -40,6 +40,7 @@ import Adminsidebar from '@/components/adminsidebar.vue';
 const loading = ref(true)
 const router = useRouter()
 const candidatesRanking = ref([])
+const data = ref(null)
 
 // Fetch vote counts
 const getVoteCounts = async () =>{
@@ -74,8 +75,25 @@ const groupedByPosition = computed(() => {
   return groups
 })
 
+const fetchDashboard = async () => {
+  loading.value = true
+  try {
+    const res = await api.get('/dashboardadmin', { withCredentials: true })
+    data.value = res.data
+  } catch (err) {
+    if (err.response?.status === 401 || err.response?.status === 403) {
+      router.push('/login')
+    }
+    data.value = null
+  } finally {
+    loading.value = false
+  }
+}
+
+
 onMounted(() => {
   getVoteCounts()
+  fetchDashboard()
 })
 </script>
 

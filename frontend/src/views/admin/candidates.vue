@@ -31,6 +31,9 @@
               <button class="edit-btn" @click="openEditModal(candidate)">
                 Edit
               </button>
+              <button class="delete-btn" @click="deleteCandidate(candidate)">
+                Delete
+              </button>
             </div>
 
             <!-- Empty state -->
@@ -162,6 +165,24 @@ const closeModal = () => {
     errorMsg.value = ''
   }
 }
+
+const deleteCandidate = async (candidate) => {
+  const confirmed = confirm(`Are you sure you want to delete ${candidate.firstname} ${candidate.lastname}?`)
+  
+  if (!confirmed) return
+
+  try {
+    await api.delete(`deleteCandidate/${candidate.id}`);
+    candidates.value = candidates.value.filter(c => c.id !== candidate.id)
+
+    successMsg.value = 'Candidate updated successfully!'
+    setTimeout(() => {
+      successMsg.value = ''
+    }, 3000)
+  } catch (err) {
+    errorMsg.value = err.response?.data?.message || 'Failed to update candidate.'
+  }
+};
 
 const submitEdit = async () => {
   submitting.value = true

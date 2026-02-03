@@ -1,5 +1,5 @@
 <template>   
-<h2>Candidates Page</h2>
+<h2>Candidates Entry</h2>
     <p v-if="message" class="success-message">
       {{ message }}
     </p>

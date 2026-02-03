@@ -8,6 +8,7 @@ import Candidates from '@/views/admin/candidates.vue'
 import Usercandidates from '@/views/usercandidates.vue'
 import CandidatesRanking from '@/views/candidatesRanking.vue'
 import AdminCandidatesRanking from '@/views/admin/adminCandidatesRanking.vue'
+import AdminTrackVotes from '@/views/admin/adminTrackVotes.vue'
 
 const routes = [
   { path: '/', redirect: '/scan' },
@@ -20,6 +21,8 @@ const routes = [
   { path: '/usercandidates', component: Usercandidates },
   { path: '/candidatesranking', component: CandidatesRanking },
   { path: '/admincandidatesranking', component: AdminCandidatesRanking },
+  { path: '/admintrackvotes', component: AdminTrackVotes },
+
 ]
 
 

@@ -213,7 +213,7 @@ export const updateCandidate = async (req, res) => {
   }
 
   try {
-    // Update candidate in 'candidates' collection
+    //update the candidate information
     const response = await directus.patch(`candidates/${candidateId}`, {
       firstname,
       middlename,
@@ -229,6 +229,33 @@ export const updateCandidate = async (req, res) => {
     }
 }
 
+export const deleteCandidate = async (req, res) => {
+    const candidateId = req.params.id
 
+    try {
+      const votesResponse = await directus.get('/studentvotes', {
+        params: {
+          filter: ({candidateId: { _eq: candidateId }})
+        }
+      });
 
+      // Delete each vote inside the db if the admin deleted the candidate
+      if (votesResponse.data.data && votesResponse.data.data.length > 0) {
+        const deletePromises = votesResponse.data.data.map(vote => 
+          directus.delete(`/studentvotes/${vote.id}`)
+        );
+        await Promise.all(deletePromises);
+      }
+
+      // Delete the candidate if the admin deleted it
+      await directus.delete(`/candidates/${candidateId}`);
+      
+      return res.status(200).json({ 
+        message: 'Candidate and votes deleted successfully'
+      });
+    } catch (err) {
+      console.error(err.response?.data || err)
+      res.status(500).json({ message: 'Failed to delete candidate.' })
+    }
+}
 
