@@ -116,10 +116,11 @@ export const submitVote = async (req, res) => {
     })
 
     if (!studentResponse.data.data.length) {
-    return res.status(404).json({ message: 'Student not found' })
+      return res.status(404).json({ message: 'Student not found' })
     }
 
     const studentId = studentResponse.data.data[0].id
+    const studentNumber = studentResponse.data.data[0].value
 
     const existingVote = await directus.get('/studentvotes', {
       params: {
@@ -143,8 +144,19 @@ export const submitVote = async (req, res) => {
       })
     )
 
-    await directus.post('/studentvotes', votePayload)
+    const now = new Date()
+    const phTime = new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString()
 
+    const votesLoad = [{
+      studentId,
+      studentNumber,
+      createdAt: phTime,
+      description: 'Successfully voted.'
+    }]
+
+    await directus.post('/studentvotes', votePayload)
+    await directus.post('trackvotes', votesLoad )
+    
     return res.status(201).json({
       message: 'Vote submitted successfully'
     })
