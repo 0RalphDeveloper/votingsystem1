@@ -48,7 +48,7 @@ export const scanQRCode = async (req, res) => {
     // Set token as HTTP-only cookie
     res.cookie('userToken', newToken, {
       httpOnly: true,       // Cannot be accessed by JS
-      secure: false,        // true if using HTTPS
+      secure: true,        // true if using HTTPS
       sameSite: 'lax',      // prevents CSRF in most cases
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     })
@@ -118,7 +118,7 @@ export const logoutuser = async (req, res) => {
     // ✅ Clear HTTP-only cookie (MUST match original options)
     res.clearCookie('userToken', {
       httpOnly: true,
-      secure: false,   // same as when set
+      secure: true,   // same as when set
       sameSite: 'lax', // same as when set
       path: '/',       // default, but be explicit
     })
