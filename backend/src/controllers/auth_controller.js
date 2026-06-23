@@ -87,7 +87,7 @@ export const login = async (req, res) => {
     res.cookie('userToken', newToken, {
       httpOnly: true,       // Cannot be accessed by JS
       secure: true,        // true if using HTTPS
-      sameSite: 'lax',      // prevents CSRF in most cases
+      sameSite: 'none',      // prevents CSRF in most cases
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     })
 
@@ -169,7 +169,7 @@ export const logoutadmin = async (req, res) => {
     res.clearCookie('userToken', {
       httpOnly: true,
       secure: true,   // same as when set
-      sameSite: 'lax', // same as when set
+      sameSite: 'none', // same as when set
       path: '/',       // default, but be explicit
     })
 
