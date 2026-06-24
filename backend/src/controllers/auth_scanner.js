@@ -18,34 +18,51 @@ export const scanQRCode = async (req, res) => {
     const { scannedValue } = req.body
     if (!scannedValue) return res.status(400).json({ message: 'ID is required' })
 
-    // Check if scannedValue exists in studentsaccount
     const studentRes = await directus.get('/studentsaccount', {
-    params: { 'filter[idNumber][_eq]': scannedValue }
+      params: { 'filter[idNumber][_eq]': scannedValue }
     })
 
     if (studentRes.data.data.length === 0) {
-    return res.status(400).json({ message: 'Invalid student QR code' })
+      return res.status(400).json({ message: 'Invalid student QR code' })
     }
-    
+
     const existingId = await directus.get('/scannedId', {
-      params: { 'filter[value][_eq]': scannedValue }
+      params: { 'filter[token][_eq]': scannedValue }
     })
 
-    // Generate token
     const newToken = crypto.randomBytes(16).toString('hex')
 
     if (existingId.data.data.length === 0) {
+      // First scan — create the record, then verify it was actually saved
       await directus.post('/scannedId', {
         value: scannedValue,
         timestamp: new Date().toISOString(),
         token: newToken
       })
+
+      let verified = false
+      for (let i = 0; i < 5; i++) {
+        const check = await directus.get('/scannedId', {
+          params: { 'filter[token][_eq]': newToken }
+        })
+        if (check.data.data.length > 0) {
+          verified = true
+          break
+        }
+        // Wait 300ms before retrying
+        await new Promise(r => setTimeout(r, 300))
+      }
+
+      if (!verified) {
+        return res.status(500).json({ message: 'Failed to confirm scan record' })
+      }
+
     } else {
       const idToUpdate = existingId.data.data[0].id
       await directus.patch(`/scannedId/${idToUpdate}`, { token: newToken })
     }
 
-    // Set token as HTTP-only cookie
+   // Set token as HTTP-only cookie
     res.cookie('userToken', newToken, {
       httpOnly: true,       // Cannot be accessed by JS
       secure: true,        // true if using HTTPS
@@ -54,11 +71,14 @@ export const scanQRCode = async (req, res) => {
     })
 
     res.status(200).json({ message: 'ID processed' })
+
   } catch (err) {
     console.error(err.response?.data || err.message)
     res.status(500).json({ message: 'Failed to save scanned ID' })
   }
 }
+
+
 
 // Dashboard route
 export const getDashboard = async (req, res) => {
